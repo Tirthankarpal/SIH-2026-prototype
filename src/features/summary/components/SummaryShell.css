@@ -1,0 +1,222 @@
+/*
+ * ═══════════════════════════════════════════════════════════
+ *  Summary View Styles
+ * ═══════════════════════════════════════════════════════════
+ */
+
+.summary-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--sl-space-6);
+  animation: sl-fade-in 0.4s ease both;
+  color: var(--sl-text-primary);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sl-space-8);
+  padding-bottom: var(--sl-space-4);
+  border-bottom: 2px solid var(--sl-border);
+}
+
+.summary-title {
+  font-size: var(--sl-text-3xl);
+  font-weight: var(--sl-font-bold);
+  color: var(--sl-accent);
+}
+
+.summary-actions {
+  display: flex;
+  gap: var(--sl-space-3);
+}
+
+.summary-action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sl-space-2);
+  padding: var(--sl-space-2) var(--sl-space-4);
+  background: var(--sl-bg-card);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-md);
+  color: var(--sl-text-primary);
+  font-size: var(--sl-text-sm);
+  font-weight: var(--sl-font-medium);
+  cursor: pointer;
+  transition: all var(--sl-transition-fast);
+}
+
+.summary-action-btn:hover {
+  background: var(--sl-bg-card-hover);
+  border-color: var(--sl-accent);
+}
+
+.summary-card {
+  background: var(--sl-bg-card);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-lg);
+  padding: var(--sl-space-6);
+  margin-bottom: var(--sl-space-6);
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.summary-section-title {
+  font-size: var(--sl-text-lg);
+  font-weight: var(--sl-font-bold);
+  color: var(--sl-accent);
+  margin-bottom: var(--sl-space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--sl-space-2);
+}
+
+/* Data List Styles */
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sl-space-3);
+}
+
+.summary-list-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sl-space-2);
+}
+
+.summary-list-item::before {
+  content: '•';
+  color: var(--sl-text-secondary);
+}
+
+.summary-label {
+  font-weight: var(--sl-font-medium);
+  color: var(--sl-text-secondary);
+  min-width: 120px;
+}
+
+.summary-value {
+  color: var(--sl-text-primary);
+}
+
+/* Narrative Text */
+.summary-narrative {
+  line-height: 1.6;
+  font-size: var(--sl-text-md);
+  color: var(--sl-text-primary);
+}
+
+/* Alert Box */
+.summary-alert {
+  background: var(--sl-emergency-bg);
+  border: 1px solid #ef4444;
+  border-radius: var(--sl-radius-md);
+  padding: var(--sl-space-4);
+  margin-bottom: var(--sl-space-6);
+}
+
+.summary-alert-title {
+  color: #ef4444;
+  font-weight: var(--sl-font-bold);
+  margin-bottom: var(--sl-space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--sl-space-2);
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .summary-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .summary-header {
+    border-bottom-color: #ccc;
+  }
+
+  .summary-title, .summary-section-title {
+    color: #000;
+  }
+
+  .summary-action-btn {
+    display: none;
+  }
+
+  .summary-card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: var(--sl-space-6);
+  }
+
+  .summary-label {
+    color: #555;
+  }
+}
+
+/* Dosha Chart (Simple CSS implementation) */
+.dosha-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sl-space-3);
+  margin-top: var(--sl-space-4);
+}
+
+.dosha-bar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--sl-space-3);
+}
+
+.dosha-bar-label {
+  width: 60px;
+  font-weight: var(--sl-font-bold);
+}
+
+.dosha-bar-track {
+  flex: 1;
+  height: 12px;
+  background: var(--sl-bg-secondary);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.dosha-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s ease-out;
+}
+
+.dosha-vata { background: #34d399; color: #34d399; }
+.dosha-pitta { background: #f87171; color: #f87171; }
+.dosha-kapha { background: #60a5fa; color: #60a5fa; }
+
+.dosha-percentage {
+  width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ AI Loading Skeleton ═══ */
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.ai-skeleton {
+  background: linear-gradient(90deg, var(--sl-bg-card) 25%, var(--sl-bg-hover) 50%, var(--sl-bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--sl-radius-md);
+}
+

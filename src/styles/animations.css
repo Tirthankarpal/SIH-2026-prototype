@@ -1,0 +1,156 @@
+/*
+ * ═══════════════════════════════════════════════════════════
+ *  SwasthyaLipi — Keyframe Animations
+ * ═══════════════════════════════════════════════════════════
+ */
+
+/* ── Mic pulse ring (expands + fades while listening) ── */
+@keyframes sl-pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* ── Subtle breathing glow on the mic button ── */
+@keyframes sl-breathe {
+  0%, 100% {
+    box-shadow: 0 0 12px var(--sl-accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--sl-accent-glow), 0 0 48px var(--sl-accent-muted);
+  }
+}
+
+/* ── Slide up + fade (for cards / questions appearing) ── */
+@keyframes sl-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Slide down ── */
+@keyframes sl-slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Fade in ── */
+@keyframes sl-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ── Scale bounce (for buttons) ── */
+@keyframes sl-scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Red-flag emergency strobe ── */
+@keyframes sl-emergency-pulse {
+  0%, 100% {
+    border-color: var(--sl-emergency);
+    box-shadow: 0 0 15px var(--sl-emergency-glow);
+  }
+  50% {
+    border-color: transparent;
+    box-shadow: 0 0 40px var(--sl-emergency-glow), 0 0 80px var(--sl-error-muted);
+  }
+}
+
+/* ── Typewriter cursor blink ── */
+@keyframes sl-cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ── Progress bar shimmer ── */
+@keyframes sl-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ── Floating ambient dots (background decoration) ── */
+@keyframes sl-float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-3px);
+  }
+  75% {
+    transform: translateY(-12px) translateX(8px);
+  }
+}
+
+/* ── Waveform bars (voice visualizer) ── */
+@keyframes sl-wave-1 {
+  0%, 100% { height: 8px; }
+  50%      { height: 24px; }
+}
+@keyframes sl-wave-2 {
+  0%, 100% { height: 12px; }
+  50%      { height: 32px; }
+}
+@keyframes sl-wave-3 {
+  0%, 100% { height: 6px; }
+  50%      { height: 20px; }
+}
+@keyframes sl-wave-4 {
+  0%, 100% { height: 14px; }
+  50%      { height: 28px; }
+}
+@keyframes sl-wave-5 {
+  0%, 100% { height: 10px; }
+  50%      { height: 18px; }
+}
+
+/* ═══════════ Utility classes ═══════════ */
+
+.sl-animate-slide-up {
+  animation: sl-slide-up 0.45s var(--sl-transition-slow) both;
+}
+
+.sl-animate-slide-down {
+  animation: sl-slide-down 0.35s var(--sl-transition-base) both;
+}
+
+.sl-animate-fade-in {
+  animation: sl-fade-in 0.3s ease both;
+}
+
+.sl-animate-scale-in {
+  animation: sl-scale-in 0.4s var(--sl-transition-spring) both;
+}

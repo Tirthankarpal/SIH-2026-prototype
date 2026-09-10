@@ -1,0 +1,118 @@
+/*
+ * ═══════════════════════════════════════════════════════════
+ *  SwasthyaLipi — Design Tokens
+ *  Premium light medical theme with trustworthy blue accents
+ * ═══════════════════════════════════════════════════════════
+ */
+
+:root {
+  /* ── Color Palette ── */
+  --sl-bg-primary:        #f8fafc;
+  --sl-bg-secondary:      #f1f5f9;
+  --sl-bg-tertiary:       #ffffff;
+  --sl-bg-card:           #ffffff;
+  --sl-bg-card-hover:     #f8fafc;
+  --sl-bg-glass:          rgba(255, 255, 255, 0.85);
+
+  --sl-accent:            #2563eb;
+  --sl-accent-hover:      #1d4ed8;
+  --sl-accent-muted:      rgba(37, 99, 235, 0.12);
+  --sl-accent-glow:       rgba(37, 99, 235, 0.25);
+
+  --sl-accent-secondary:  #0f766e;
+  --sl-accent-secondary-muted: rgba(15, 118, 110, 0.12);
+
+  --sl-text-primary:      #0f172a;
+  --sl-text-secondary:    #475569;
+  --sl-text-muted:        #64748b;
+  --sl-text-inverse:      #ffffff;
+
+  --sl-border:            #e2e8f0;
+  --sl-border-active:     #2563eb;
+
+  /* Semantic colors */
+  --sl-success:           #10b981;
+  --sl-warning:           #f59e0b;
+  --sl-error:             #ef4444;
+  --sl-error-muted:       rgba(239, 68, 68, 0.12);
+  --sl-info:              #0ea5e9;
+
+  /* Red-flag emergency */
+  --sl-emergency:         #dc2626;
+  --sl-emergency-bg:      rgba(220, 38, 38, 0.10);
+  --sl-emergency-glow:    rgba(220, 38, 38, 0.25);
+
+  /* ── Typography ── */
+  --sl-font-primary:      'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+  --sl-font-mono:         'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  --sl-text-xs:           0.75rem;    /* 12px */
+  --sl-text-sm:           0.875rem;   /* 14px */
+  --sl-text-base:         1rem;       /* 16px */
+  --sl-text-lg:           1.125rem;   /* 18px */
+  --sl-text-xl:           1.25rem;    /* 20px */
+  --sl-text-2xl:          1.5rem;     /* 24px */
+  --sl-text-3xl:          1.875rem;   /* 30px */
+  --sl-text-4xl:          2.25rem;    /* 36px */
+  --sl-text-5xl:          3rem;       /* 48px */
+
+  --sl-font-normal:       400;
+  --sl-font-medium:       500;
+  --sl-font-semibold:     600;
+  --sl-font-bold:         700;
+
+  --sl-leading-tight:     1.25;
+  --sl-leading-normal:    1.5;
+  --sl-leading-relaxed:   1.75;
+
+  /* ── Spacing ── */
+  --sl-space-1:           0.25rem;    /* 4px  */
+  --sl-space-2:           0.5rem;     /* 8px  */
+  --sl-space-3:           0.75rem;    /* 12px */
+  --sl-space-4:           1rem;       /* 16px */
+  --sl-space-5:           1.25rem;    /* 20px */
+  --sl-space-6:           1.5rem;     /* 24px */
+  --sl-space-8:           2rem;       /* 32px */
+  --sl-space-10:          2.5rem;     /* 40px */
+  --sl-space-12:          3rem;       /* 48px */
+  --sl-space-16:          4rem;       /* 64px */
+  --sl-space-20:          5rem;       /* 80px */
+
+  /* ── Border Radius ── */
+  --sl-radius-sm:         0.375rem;   /* 6px  */
+  --sl-radius-md:         0.625rem;   /* 10px */
+  --sl-radius-lg:         0.875rem;   /* 14px */
+  --sl-radius-xl:         1.25rem;    /* 20px */
+  --sl-radius-2xl:        1.5rem;     /* 24px */
+  --sl-radius-full:       9999px;
+
+  /* ── Shadows ── */
+  --sl-shadow-sm:         0 1px 2px rgba(15, 23, 42, 0.05);
+  --sl-shadow-md:         0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --sl-shadow-lg:         0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --sl-shadow-xl:         0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --sl-shadow-glow:       0 0 15px var(--sl-accent-glow);
+  --sl-shadow-glow-error: 0 0 15px var(--sl-emergency-glow);
+
+  /* ── Glass Effect ── */
+  --sl-glass-blur:        12px;
+  --sl-glass-border:      1px solid rgba(255, 255, 255, 0.6);
+
+  /* ── Transitions ── */
+  --sl-transition-fast:   150ms ease;
+  --sl-transition-base:   250ms ease;
+  --sl-transition-slow:   400ms ease;
+  --sl-transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-Index ── */
+  --sl-z-base:            0;
+  --sl-z-dropdown:        100;
+  --sl-z-sticky:          200;
+  --sl-z-overlay:         300;
+  --sl-z-modal:           400;
+  --sl-z-toast:           500;
+  --sl-z-emergency:       900;
+
+  /* ── Min touch target (WCAG / accessibility) ── */
+  --sl-touch-min:         48px;
+}
