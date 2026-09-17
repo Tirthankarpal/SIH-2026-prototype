@@ -40,6 +40,20 @@ export function ModeSelect() {
           <span className="mode-card__icon">🌿</span>
           <div className="mode-card__title">{t.onboarding.mode_ayush}</div>
         </div>
+
+        <div 
+          className="mode-card" 
+          onClick={() => handleSelect('modern')}
+          style={{ background: 'var(--sl-bg-subtle)', borderStyle: 'dashed' }}
+        >
+          <span className="mode-card__icon">🤷</span>
+          <div>
+            <div className="mode-card__title">{t.onboarding.mode_unsure}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--sl-text-muted)', marginTop: '4px' }}>
+              ({t.onboarding.mode_unsure_desc})
+            </div>
+          </div>
+        </div>
       </div>
     </OnboardingShell>
   );

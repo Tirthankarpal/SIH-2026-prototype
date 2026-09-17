@@ -3,6 +3,7 @@ import { LanguageSelect } from '../features/onboarding/pages/LanguageSelect';
 import { PatientIdentify } from '../features/onboarding/pages/PatientIdentify';
 import { ConsentScreen } from '../features/onboarding/pages/ConsentScreen';
 import { ModeSelect } from '../features/onboarding/pages/ModeSelect';
+import { DocumentScan } from '../features/onboarding/pages/DocumentScan';
 import { InterviewShell } from '../features/interview/components/InterviewShell';
 import { useSessionStore } from '../store/sessionStore';
 import { useInterviewStore } from '../store/interviewStore';
@@ -28,23 +29,8 @@ function InterviewWrapper() {
     console.log('[SwasthyaLipi] Interview complete!', state);
     setCompletedInterview(state);
     
-    // Generate summary immediately for backend storage
-    const summary = generateSummary(state);
-    
-    try {
-      await api.submitEncounter({
-        patient_id: useSessionStore.getState().patientId || 'unknown',
-        mode: state.mode,
-        engine_state: state,
-        generated_summary: summary,
-        red_flag_count: state.redFlags.length
-      });
-      console.log('[SwasthyaLipi] Saved to database queue successfully.');
-    } catch (err) {
-      console.error('[SwasthyaLipi] Failed to save to database', err);
-    }
-
-    navigate('/summary');
+    // We now route to /scan for document upload before submitting
+    navigate('/scan');
   };
 
   return <InterviewShell initialLanguage={language} mode={mode || 'modern'} onComplete={handleComplete} />;
@@ -74,6 +60,10 @@ const router = createBrowserRouter([
   {
     path: '/interview',
     element: <InterviewWrapper />,
+  },
+  {
+    path: '/scan',
+    element: <DocumentScan />,
   },
   {
     path: '/summary',

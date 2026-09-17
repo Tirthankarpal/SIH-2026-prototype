@@ -14,6 +14,8 @@
     "mode_subtitle": "Which type of consultation are you here for?",
     "mode_modern": "Modern Medicine",
     "mode_ayush": "Ayurveda (AYUSH)",
+    "mode_unsure": "I'm Not Sure",
+    "mode_unsure_desc": "Standard Doctor",
     "btn_continue": "Continue",
     "btn_agree": "I Agree",
     "btn_decline": "Decline"

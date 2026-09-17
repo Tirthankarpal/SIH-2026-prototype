@@ -485,9 +485,11 @@ export function InterviewShell({
                   e.target.style.height = e.target.scrollHeight + 'px';
                 }}
                 placeholder={
-                  isHindi
-                    ? 'यहाँ टाइप करें या बोलने के लिए माइक दबाएं...'
-                    : 'Type here or tap the mic to speak...'
+                  speech.interimTranscript
+                    ? '' // Hide placeholder when interim text is present to prevent overlap
+                    : isHindi
+                      ? 'यहाँ टाइप करें या बोलने के लिए माइक दबाएं...'
+                      : 'Type here or tap the mic to speak...'
                 }
               />
               {/* Show interim transcript over/after the text while listening */}

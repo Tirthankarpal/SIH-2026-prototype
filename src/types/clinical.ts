@@ -295,3 +295,14 @@ export const SECTIONS: SectionMeta[] = [
   { id: 'ayush_ahara',       label_en: 'Ahara (Digestion)',       label_hi: 'आहार शक्ति',        icon: '🍽️', order: 17 },
   { id: 'ayush_vyayama',     label_en: 'Vyayama (Exercise)',      label_hi: 'व्यायाम शक्ति',      icon: '💪', order: 18 },
 ];
+
+/* ═══════════════════ Scanned Documents ═══════════════════ */
+
+export interface ScannedDocument {
+  id: string; // UUID
+  type: 'prescription' | 'lab_report' | 'discharge_summary' | 'other';
+  date: string;
+  extractedData: any; // Parsed JSON
+  rawText: string; // Raw OCR text
+  imageUrl?: string;
+}

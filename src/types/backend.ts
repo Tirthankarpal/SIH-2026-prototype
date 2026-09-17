@@ -1,5 +1,6 @@
 import type { FormattedSummary } from '../features/summary/formatters/clinicalFormatters';
 import type { EngineState } from '../features/interview/engine/branchingEngine';
+import type { ScannedDocument } from './clinical';
 
 export type EncounterStatus = 'intake_completed' | 'waiting' | 'in_consultation' | 'completed';
 
@@ -16,6 +17,7 @@ export interface PatientEncounter {
   // Data captured by the tablet
   engine_state: EngineState | null;
   generated_summary: FormattedSummary | null;
+  scanned_documents: ScannedDocument[] | null;
   
   // Doctor's Workspace (filled during consultation)
   doctor_diagnosis: string | null;

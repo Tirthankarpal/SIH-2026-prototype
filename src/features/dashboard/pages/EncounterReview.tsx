@@ -4,6 +4,42 @@ import { DoctorShell } from '../components/DoctorShell';
 import { useDoctorStore } from '../../../store/doctorStore';
 import { useAISummary } from '../../../hooks/useAISummary';
 import type { FormattedSummary } from '../../summary/formatters/clinicalFormatters';
+import { generateFHIRBundle } from '../../../lib/fhir';
+
+const renderExtractedData = (data: any) => {
+  if (!data) return <span style={{ color: 'var(--sl-text-muted)' }}>No data extracted</span>;
+  if (typeof data === 'string') return <span style={{ color: 'var(--sl-text-secondary)' }}>{data}</span>;
+  
+  if (typeof data === 'object') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {Object.entries(data).map(([key, value]) => {
+          const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          let formattedValue: React.ReactNode = String(value);
+          
+          if (Array.isArray(value)) {
+            formattedValue = (
+              <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
+                {value.map((item, i) => <li key={i}>{typeof item === 'object' ? JSON.stringify(item) : String(item)}</li>)}
+              </ul>
+            );
+          } else if (typeof value === 'object' && value !== null) {
+            formattedValue = <pre style={{ margin: '4px 0 0 0', padding: '8px', background: 'var(--sl-bg-body)', borderRadius: '4px', fontSize: '0.8rem' }}>{JSON.stringify(value, null, 2)}</pre>;
+          }
+
+          return (
+            <div key={key}>
+              <strong style={{ color: 'var(--sl-text-primary)' }}>{formattedKey}:</strong>{' '}
+              <span style={{ color: 'var(--sl-text-secondary)' }}>{formattedValue}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  
+  return <span>{String(data)}</span>;
+};
 
 export function EncounterReview() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +52,12 @@ export function EncounterReview() {
   const [isSaving, setIsSaving] = useState(false);
   const ai = useAISummary();
 
+  const [demographics, setDemographics] = useState({ name: 'John Doe', age: '35', gender: 'Male', abhaAddress: 'johndoe@abdm' });
+  const [hpiNarrative, setHpiNarrative] = useState('');
+  const [ayushPrimary, setAyushPrimary] = useState('');
+  const [ayushSecondary, setAyushSecondary] = useState('');
+  const [acceptedDocs, setAcceptedDocs] = useState<Set<number>>(new Set());
+
   const encounter = encounters.find(e => e.id === id);
 
   useEffect(() => {
@@ -25,6 +67,13 @@ export function EncounterReview() {
       setDiagnosis(encounter.doctor_diagnosis || '');
       setPrescription(encounter.doctor_prescription || '');
       setPlan(encounter.doctor_plan || '');
+      
+      setHpiNarrative(encounter.generated_summary?.hpiNarrative || '');
+      setAyushPrimary(encounter.generated_summary?.prakritiResult?.primaryDosha || '');
+      setAyushSecondary(encounter.generated_summary?.prakritiResult?.secondaryDosha || '');
+      if (encounter.scanned_documents) {
+        setAcceptedDocs(new Set(encounter.scanned_documents.map((_, i) => i)));
+      }
       
       // Auto-update status to in_consultation when opened
       if (encounter.status === 'waiting') {
@@ -53,6 +102,51 @@ export function EncounterReview() {
     setIsSaving(false);
   };
 
+  const handleExportFHIR = async () => {
+    try {
+      // Create a cloned encounter to pass the edited values to the FHIR generator
+      const editedEncounter = JSON.parse(JSON.stringify(encounter));
+      if (editedEncounter.generated_summary) {
+        editedEncounter.generated_summary.hpiNarrative = hpiNarrative;
+        if (editedEncounter.generated_summary.prakritiResult) {
+          editedEncounter.generated_summary.prakritiResult.primaryDosha = ayushPrimary;
+          editedEncounter.generated_summary.prakritiResult.secondaryDosha = ayushSecondary;
+        }
+      }
+      editedEncounter.doctor_diagnosis = diagnosis;
+      editedEncounter.doctor_prescription = prescription;
+
+      const bundle = generateFHIRBundle(editedEncounter, demographics);
+      
+      // 1. Post to our backend background worker (Simulating Kafka / ABDM Integration)
+      const backendUrl = import.meta.env.VITE_CLINICAL_ENGINE_URL || 'http://localhost:8000';
+      const response = await fetch(`${backendUrl}/api/fhir/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bundle)
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to queue FHIR transmission');
+      }
+
+      // 2. Still download the JSON file locally so the Jury can see it
+      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/fhir+json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fhir-bundle-${encounter.patient_id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      alert('✅ FHIR Bundle successfully queued for ABDM transmission!');
+    } catch (e: any) {
+      alert('Failed to generate FHIR Bundle: ' + e.message);
+    }
+  };
+
   return (
     <DoctorShell title={`Patient Review: ${encounter.patient_id}`} showBack>
       <div className="encounter-split">
@@ -63,6 +157,31 @@ export function EncounterReview() {
             Patient Intake Summary
           </div>
           <div className="encounter-pane__content">
+            
+            <div style={{ marginBottom: '24px', background: 'var(--sl-bg-subtle)', padding: '16px', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--sl-accent)' }}>Patient Demographics</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="doctor-form-label" style={{ fontSize: '0.8rem' }}>Full Name</label>
+                  <input type="text" className="doctor-textarea" style={{ minHeight: '38px', padding: '8px' }} value={demographics.name} onChange={e => setDemographics({...demographics, name: e.target.value})} />
+                </div>
+                <div>
+                  <label className="doctor-form-label" style={{ fontSize: '0.8rem' }}>Age / Gender</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input type="number" className="doctor-textarea" style={{ minHeight: '38px', padding: '8px', flex: 1 }} value={demographics.age} onChange={e => setDemographics({...demographics, age: e.target.value})} />
+                    <select className="doctor-textarea" style={{ minHeight: '38px', padding: '8px', flex: 1 }} value={demographics.gender} onChange={e => setDemographics({...demographics, gender: e.target.value})}>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label className="doctor-form-label" style={{ fontSize: '0.8rem' }}>ABHA Address</label>
+                  <input type="text" className="doctor-textarea" style={{ minHeight: '38px', padding: '8px' }} value={demographics.abhaAddress} onChange={e => setDemographics({...demographics, abhaAddress: e.target.value})} />
+                </div>
+              </div>
+            </div>
             {summary.redFlagAlerts.length > 0 && (
               <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--sl-danger)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
                 <h3 style={{ color: 'var(--sl-danger)', marginBottom: '8px' }}>🚨 URGENT ALERTS</h3>
@@ -75,13 +194,15 @@ export function EncounterReview() {
             )}
 
             <div style={{ marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: 'var(--sl-accent)' }}>Chief Complaint</h3>
-              <p>{summary.chiefComplaint || 'None recorded'}</p>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: 'var(--sl-accent)' }}>History of Present Illness</h3>
-              <p>{summary.hpiNarrative || 'No HPI narrative generated'}</p>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: 'var(--sl-accent)' }}>Chief Complaint & HPI (Editable)</h3>
+              <div style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--sl-text-secondary)' }}><strong>CC:</strong> {summary.chiefComplaint || 'None recorded'}</div>
+              <textarea 
+                className="doctor-textarea" 
+                value={hpiNarrative} 
+                onChange={e => setHpiNarrative(e.target.value)} 
+                style={{ minHeight: '120px' }}
+                placeholder="Edit the history of present illness here..."
+              />
             </div>
 
             <div style={{ marginBottom: '24px' }}>
@@ -102,10 +223,68 @@ export function EncounterReview() {
               ) : <p>No pertinent positives reported.</p>}
             </div>
 
+            {encounter.scanned_documents && encounter.scanned_documents.length > 0 && (
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: 'var(--sl-accent)' }}>Prior Medical Records</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {encounter.scanned_documents.map((doc, idx) => (
+                    <div key={idx} style={{ background: 'var(--sl-bg-subtle)', padding: '12px', borderRadius: '8px', border: '1px solid var(--sl-border-light)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+                        <strong style={{ textTransform: 'capitalize' }}>
+                          {doc.type === 'prescription' ? '💊 ' : doc.type === 'lab_report' ? '🔬 ' : '📑 '}
+                          {doc.type.replace('_', ' ')}
+                        </strong>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--sl-text-muted)' }}>{doc.date}</span>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', cursor: 'pointer', background: acceptedDocs.has(idx) ? 'rgba(52, 211, 153, 0.1)' : 'var(--sl-bg-card)', padding: '4px 8px', borderRadius: '12px', border: `1px solid ${acceptedDocs.has(idx) ? '#34d399' : 'var(--sl-border-light)'}` }}>
+                            <input type="checkbox" checked={acceptedDocs.has(idx)} onChange={(e) => {
+                              const newSet = new Set(acceptedDocs);
+                              if (e.target.checked) newSet.add(idx);
+                              else newSet.delete(idx);
+                              setAcceptedDocs(newSet);
+                            }} />
+                            {acceptedDocs.has(idx) ? 'Accepted' : 'Rejected'}
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div style={{ fontSize: '0.9rem', marginBottom: '12px', background: 'var(--sl-bg-card)', padding: '12px', borderRadius: '6px', border: '1px solid var(--sl-border-light)' }}>
+                        {renderExtractedData(doc.extractedData)}
+                      </div>
+
+                      {doc.imageUrl && (
+                        <a 
+                          href={doc.imageUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          style={{ fontSize: '0.85rem', color: 'var(--sl-accent)', textDecoration: 'underline' }}
+                        >
+                          View Original Image
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {summary.prakritiResult && (
               <div style={{ background: 'var(--sl-bg-body)', padding: '16px', borderRadius: '8px' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--sl-accent)' }}>🌿 AYUSH Prakriti</h3>
-                <p style={{ marginBottom: '16px' }}><strong>Dominant Dosha:</strong> {summary.prakritiResult.primaryDosha} {summary.prakritiResult.secondaryDosha && `- ${summary.prakritiResult.secondaryDosha}`}</p>
+                <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <strong>Dominant Dosha:</strong> 
+                  <select className="doctor-textarea" style={{ minHeight: '30px', padding: '4px 8px', width: '120px' }} value={ayushPrimary} onChange={e => setAyushPrimary(e.target.value)}>
+                    <option value="Vata">Vata</option>
+                    <option value="Pitta">Pitta</option>
+                    <option value="Kapha">Kapha</option>
+                  </select>
+                  <select className="doctor-textarea" style={{ minHeight: '30px', padding: '4px 8px', width: '120px' }} value={ayushSecondary} onChange={e => setAyushSecondary(e.target.value)}>
+                    <option value="">None</option>
+                    <option value="Vata">Vata</option>
+                    <option value="Pitta">Pitta</option>
+                    <option value="Kapha">Kapha</option>
+                  </select>
+                </div>
                 <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <span style={{ width: '60px' }}>Vata</span>
@@ -227,7 +406,14 @@ export function EncounterReview() {
               onChange={e => setPlan(e.target.value)}
             />
 
-            <div style={{ display: 'flex', gap: '16px', marginTop: 'auto', paddingTop: '24px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginTop: 'auto', paddingTop: '24px', flexWrap: 'wrap' }}>
+              <button 
+                className="btn-secondary" 
+                onClick={handleExportFHIR} 
+                style={{ flex: '1 1 100%', border: '1px dashed var(--sl-accent)', color: 'var(--sl-accent)' }}
+              >
+                📥 Export ABDM FHIR Bundle
+              </button>
               <button 
                 className="btn-secondary" 
                 onClick={() => handleSave(false)} 
