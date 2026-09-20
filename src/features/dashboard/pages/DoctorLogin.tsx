@@ -1,19 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../../lib/supabase';
+import { useAuthStore } from '../../../store/authStore';
 
 export function DoctorLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const setUser = useAuthStore(s => s.setUser);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    // Simulate a brief auth delay for UX polish
-    await new Promise(r => setTimeout(r, 600));
-    navigate('/doctor/queue');
+    try {
+      const result = await api.signIn(email, password);
+      setUser(result.user);
+      navigate('/doctor/queue');
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -161,6 +173,20 @@ export function DoctorLogin() {
             }}
           />
         </div>
+
+        {error && (
+          <div style={{
+            color: 'var(--sl-emergency)',
+            background: 'var(--sl-emergency-bg)',
+            padding: '12px',
+            borderRadius: 'var(--sl-radius-md)',
+            marginBottom: '20px',
+            fontSize: '0.9rem',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        )}
 
         <button
           type="submit"

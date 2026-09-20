@@ -28,7 +28,30 @@ import {
 
 /* ───────────────────────── Types ───────────────────────── */
 
-export type SupportedLanguage = 'en-IN' | 'hi-IN';
+export type SupportedLanguage = 
+  | 'as-IN'   // Assamese
+  | 'bn-IN'   // Bengali
+  | 'brx-IN'  // Bodo
+  | 'doi-IN'  // Dogri
+  | 'gu-IN'   // Gujarati
+  | 'hi-IN'   // Hindi
+  | 'kn-IN'   // Kannada
+  | 'ks-IN'   // Kashmiri
+  | 'gom-IN'  // Konkani
+  | 'mai-IN'  // Maithili
+  | 'ml-IN'   // Malayalam
+  | 'mni-IN'  // Manipuri (Meitei)
+  | 'mr-IN'   // Marathi
+  | 'ne-NP'   // Nepali
+  | 'or-IN'   // Odia
+  | 'pa-IN'   // Punjabi
+  | 'sa-IN'   // Sanskrit
+  | 'sat-IN'  // Santali
+  | 'sd-IN'   // Sindhi
+  | 'ta-IN'   // Tamil
+  | 'te-IN'   // Telugu
+  | 'ur-IN'   // Urdu
+  | 'en-IN';  // English
 
 export interface UseSpeechRecognitionReturn {
   /** Final committed transcript text */
@@ -86,9 +109,30 @@ function getSpeechRecognitionConstructor(): (new () => SpeechRecognition) | null
 const TYPEWRITER_SPEED_MS = 18;
 
 /** Human-readable language labels for error messages */
-const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
+export const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
+  'as-IN': 'Assamese (অসমীয়া)',
+  'bn-IN': 'Bengali (বাংলা)',
+  'brx-IN': 'Bodo (बड़ो)',
+  'doi-IN': 'Dogri (डोगरी)',
   'en-IN': 'English (India)',
-  'hi-IN': 'हिन्दी (भारत)',
+  'gu-IN': 'Gujarati (ગુજરાતી)',
+  'hi-IN': 'Hindi (हिन्दी)',
+  'kn-IN': 'Kannada (ಕನ್ನಡ)',
+  'ks-IN': 'Kashmiri (कॉशुर)',
+  'gom-IN': 'Konkani (कोंकणी)',
+  'mai-IN': 'Maithili (मैथिली)',
+  'ml-IN': 'Malayalam (മലയാളം)',
+  'mni-IN': 'Manipuri (ꯃꯤꯇꯩꯂꯣꯟ)',
+  'mr-IN': 'Marathi (मराठी)',
+  'ne-NP': 'Nepali (नेपाली)',
+  'or-IN': 'Odia (ଓଡ଼ିଆ)',
+  'pa-IN': 'Punjabi (ਪੰਜਾਬੀ)',
+  'sa-IN': 'Sanskrit (संस्कृतम्)',
+  'sat-IN': 'Santali (ᱥᱟᱱᱛᱟᱲᱤ)',
+  'sd-IN': 'Sindhi (سنڌي)',
+  'ta-IN': 'Tamil (தமிழ்)',
+  'te-IN': 'Telugu (తెలుగు)',
+  'ur-IN': 'Urdu (اردو)',
 };
 
 /* ═══════════════════════ HOOK ═══════════════════════ */

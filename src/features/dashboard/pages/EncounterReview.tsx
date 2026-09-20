@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DoctorShell } from '../components/DoctorShell';
 import { useDoctorStore } from '../../../store/doctorStore';
@@ -20,7 +20,22 @@ const renderExtractedData = (data: any) => {
           if (Array.isArray(value)) {
             formattedValue = (
               <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
-                {value.map((item, i) => <li key={i}>{typeof item === 'object' ? JSON.stringify(item) : String(item)}</li>)}
+                {value.map((item, i) => (
+                  <li key={i} style={{ marginBottom: '6px' }}>
+                    {typeof item === 'object' && item !== null ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'max-content 1fr', gap: '2px 8px', fontSize: '0.9rem' }}>
+                        {Object.entries(item).map(([k, v]) => (
+                          <React.Fragment key={k}>
+                            <span style={{ color: 'var(--sl-text-muted)', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}:</span>
+                            <span>{String(v)}</span>
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    ) : (
+                      String(item)
+                    )}
+                  </li>
+                ))}
               </ul>
             );
           } else if (typeof value === 'object' && value !== null) {
@@ -76,7 +91,7 @@ export function EncounterReview() {
       }
       
       // Auto-update status to in_consultation when opened
-      if (encounter.status === 'waiting') {
+      if (encounter.status === 'intake_completed' || encounter.status === 'waiting') {
         updateStatus(encounter.id, 'in_consultation');
       }
     }

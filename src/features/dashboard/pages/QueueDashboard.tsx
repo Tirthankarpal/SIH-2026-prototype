@@ -57,7 +57,16 @@ export function QueueDashboard() {
   }, [encounters.length, encounters, playNotificationSound]);
 
   // Filter active queue to only those physically waiting or in consultation
-  const activeEncounters = encounters.filter(e => e.status !== 'intake_completed');
+  const activeEncounters = encounters.filter(e => e.status !== 'completed');
+
+  // Dynamic Acuity-Based Triage: Red flags bypass the line. Otherwise, FIFO (oldest first).
+  const sortedEncounters = [...activeEncounters].sort((a, b) => {
+    if (b.red_flag_count !== a.red_flag_count) {
+      return b.red_flag_count - a.red_flag_count; // Highest red flags first
+    }
+    // Fall back to true FIFO
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime(); 
+  });
 
   // Stats
   const waitingCount = activeEncounters.filter(e => e.status === 'waiting').length;
@@ -88,7 +97,7 @@ export function QueueDashboard() {
 
       {isLoading ? (
         <p style={{ textAlign: 'center', color: 'var(--sl-text-muted)' }}>Loading queue...</p>
-      ) : activeEncounters.length === 0 ? (
+      ) : sortedEncounters.length === 0 ? (
         <div className="queue-empty">
           <div className="queue-empty__icon">☕</div>
           <h2>Queue is empty</h2>
@@ -96,7 +105,7 @@ export function QueueDashboard() {
         </div>
       ) : (
         <div className="queue-grid">
-          {activeEncounters.map(enc => (
+          {sortedEncounters.map(enc => (
             <div 
               key={enc.id} 
               className={`queue-card ${enc.red_flag_count > 0 ? 'queue-card--alert' : ''}`}

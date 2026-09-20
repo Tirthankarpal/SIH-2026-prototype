@@ -9,12 +9,15 @@ load_dotenv(dotenv_path="../.env")
 from schemas import AnalyzeRequest, ClinicalSummaryResponse
 from services.ai_service import analyze_clinical_encounter
 from services.abdm_worker import process_fhir_bundle_async
+from routers import abdm_sandbox
 
 app = FastAPI(
     title="SwasthyaLipi Clinical AI Engine",
     description="Deterministic NLP and FHIR orchestration engine",
     version="1.0.0"
 )
+
+app.include_router(abdm_sandbox.router)
 
 # Enable CORS for the React frontend (running on Vite's default port 5173)
 app.add_middleware(

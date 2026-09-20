@@ -9,8 +9,7 @@ import { useSessionStore } from '../store/sessionStore';
 import { useInterviewStore } from '../store/interviewStore';
 import type { EngineState } from '../features/interview/engine/branchingEngine';
 import { SummaryView } from '../features/summary/pages/SummaryView';
-import { generateSummary } from '../features/summary/formatters/clinicalFormatters';
-import { api } from '../lib/supabase';
+
 
 // Doctor Dashboard Imports
 import { DoctorLogin } from '../features/dashboard/pages/DoctorLogin';
@@ -18,6 +17,9 @@ import { QueueDashboard } from '../features/dashboard/pages/QueueDashboard';
 import { ReceptionDashboard } from '../features/dashboard/pages/ReceptionDashboard';
 import { EncounterReview } from '../features/dashboard/pages/EncounterReview';
 import { AnalyticsDashboard } from '../features/dashboard/pages/AnalyticsDashboard';
+
+import { useAuthStore } from '../store/authStore';
+import { useEffect } from 'react';
 
 // Wrapper to pass the correct language from session store to InterviewShell
 function InterviewWrapper() {
@@ -34,6 +36,25 @@ function InterviewWrapper() {
   };
 
   return <InterviewShell initialLanguage={language} mode={mode || 'modern'} onComplete={handleComplete} />;
+}
+
+// Protected Route Wrapper
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading, initialize } = useAuthStore();
+  
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (isLoading) {
+    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading session...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/doctor/login" replace />;
+  }
+
+  return <>{children}</>;
 }
 
 const router = createBrowserRouter([
@@ -80,19 +101,19 @@ const router = createBrowserRouter([
   },
   {
     path: '/doctor/queue',
-    element: <QueueDashboard />,
+    element: <ProtectedRoute><QueueDashboard /></ProtectedRoute>,
   },
   {
     path: '/doctor/reception',
-    element: <ReceptionDashboard />,
+    element: <ProtectedRoute><ReceptionDashboard /></ProtectedRoute>,
   },
   {
     path: '/doctor/analytics',
-    element: <AnalyticsDashboard />,
+    element: <ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>,
   },
   {
     path: '/doctor/encounter/:id',
-    element: <EncounterReview />,
+    element: <ProtectedRoute><EncounterReview /></ProtectedRoute>,
   },
 ]);
 

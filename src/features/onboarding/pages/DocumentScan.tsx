@@ -10,7 +10,7 @@ import { api } from '../../../lib/supabase';
 import type { ScannedDocument } from '../../../types/clinical';
 
 export function DocumentScan() {
-  const { t } = useTranslation();
+
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -42,16 +42,32 @@ export function DocumentScan() {
         reader.readAsDataURL(file);
       });
 
-      // Call Gemini Vision to extract
-      const extracted = await extractMedicalDocument(dataUrl);
+      let extracted = { type: 'other', date: 'Unknown', extractedData: {}, rawText: 'No internet connection. OCR bypassed.' };
+      let publicUrl: string | null = null;
+
+      // Call Gemini Vision to extract and Supabase to upload in parallel (if online)
+      if (navigator.onLine) {
+        const results = await Promise.all([
+          extractMedicalDocument(dataUrl).catch(e => {
+            console.error('OCR Failed', e);
+            return { type: 'other', date: 'Unknown', extractedData: {}, rawText: 'OCR Failed' };
+          }),
+          api.uploadDocument(dataUrl)
+        ]);
+        extracted = results[0];
+        publicUrl = results[1];
+      } else {
+        // Offline: just queue the upload, skip OCR
+        publicUrl = await api.uploadDocument(dataUrl);
+      }
 
       const newDoc: ScannedDocument = {
         id: crypto.randomUUID(),
-        type: extracted.type || 'other',
+        type: (extracted.type || 'other') as ScannedDocument['type'],
         date: extracted.date || 'Unknown',
         extractedData: extracted.extractedData || {},
         rawText: extracted.rawText || 'No text extracted',
-        imageUrl: dataUrl,
+        imageUrl: publicUrl || dataUrl, // Use public URL if upload succeeded, else fallback to base64
       };
 
       addScannedDocument(newDoc);
@@ -152,7 +168,7 @@ export function DocumentScan() {
           <div style={{ marginTop: 'var(--sl-space-4)' }}>
             <h3 style={{ fontSize: '1.1rem', marginBottom: 'var(--sl-space-2)', color: 'var(--sl-text-primary)' }}>Uploaded Documents</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sl-space-2)' }}>
-              {scannedDocuments.map((doc, i) => (
+              {scannedDocuments.map((doc) => (
                 <div key={doc.id} style={{ display: 'flex', alignItems: 'center', padding: 'var(--sl-space-3)', background: 'var(--sl-bg-subtle)', border: '1px solid var(--sl-border-light)', borderRadius: 'var(--sl-radius-md)' }}>
                   <div style={{ fontSize: '1.5rem', marginRight: 'var(--sl-space-3)' }}>
                     {doc.type === 'prescription' ? '💊' : doc.type === 'lab_report' ? '🔬' : '📑'}

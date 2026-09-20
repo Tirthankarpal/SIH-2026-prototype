@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { DoctorShell } from '../components/DoctorShell';
 import { useDoctorStore } from '../../../store/doctorStore';
 import { useRealtimeQueue } from '../../../hooks/useRealtimeQueue';

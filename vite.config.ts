@@ -34,6 +34,10 @@ export default defineConfig({
       workbox: {
         // Cache all static assets
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
       }
     })
   ],
