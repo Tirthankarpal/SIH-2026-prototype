@@ -57,7 +57,7 @@ export function QueueDashboard() {
   }, [encounters.length, encounters, playNotificationSound]);
 
   // Filter active queue to only those physically waiting or in consultation
-  const activeEncounters = encounters.filter(e => e.status !== 'completed');
+  const activeEncounters = encounters.filter(e => e.status === 'waiting' || e.status === 'in_consultation');
 
   // Dynamic Acuity-Based Triage: Red flags bypass the line. Otherwise, FIFO (oldest first).
   const sortedEncounters = [...activeEncounters].sort((a, b) => {
